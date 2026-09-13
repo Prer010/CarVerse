@@ -247,6 +247,7 @@ public class BusinessCarServlet extends HttpServlet {
         c.setTransmission(trim(req.getParameter("transmission")));
         c.setColor(trim(req.getParameter("color")));
         c.setLocation(trim(req.getParameter("location")));
+        c.setImages(trim(req.getParameter("images")));
 
         try { c.setManufacturingYear(Integer.parseInt(trim(req.getParameter("manufacturingYear")))); }
         catch (NumberFormatException e) { c.setManufacturingYear(0); }

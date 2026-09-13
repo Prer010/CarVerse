@@ -32,6 +32,9 @@ public class BusinessCarBean {
     private double pricePerDay;
     private String location;
 
+    // Image URLs (comma-separated or single URL)
+    private String images;
+
     // Status: AVAILABLE | BOOKED | MAINTENANCE | INACTIVE
     private String availabilityStatus;
 
@@ -90,6 +93,9 @@ public class BusinessCarBean {
 
     public String getLocation()                   { return location; }
     public void   setLocation(String v)           { this.location = v; }
+
+    public String getImages()                     { return images; }
+    public void   setImages(String v)             { this.images = v; }
 
     public String getAvailabilityStatus()         { return availabilityStatus; }
     public void   setAvailabilityStatus(String v) { this.availabilityStatus = v; }
