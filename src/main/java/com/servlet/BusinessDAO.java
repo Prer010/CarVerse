@@ -234,7 +234,7 @@ public class BusinessDAO {
             "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
             "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
             "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       AVAILABILITY_STATUS" +
+            "       IMAGES, AVAILABILITY_STATUS" +
             "  FROM CAR_DETAILS" +
             " WHERE COMPANY_ID = ?" +
             " ORDER BY CAR_ID DESC";
@@ -261,7 +261,7 @@ public class BusinessDAO {
             "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
             "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
             "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       AVAILABILITY_STATUS" +
+            "       IMAGES, AVAILABILITY_STATUS" +
             "  FROM CAR_DETAILS" +
             " WHERE CAR_ID = ? AND COMPANY_ID = ?";
 
@@ -289,8 +289,8 @@ public class BusinessDAO {
             "  CAR_ID, COMPANY_ID, REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
             "  MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
             "  SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "  AVAILABILITY_STATUS" +
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'AVAILABLE')";
+            "  IMAGES, AVAILABILITY_STATUS" +
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'AVAILABLE')";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -309,6 +309,7 @@ public class BusinessDAO {
             ps.setString(12, nullIfBlank(c.getColor()));
             ps.setDouble(13, c.getPricePerDay());
             ps.setString(14, nullIfBlank(c.getLocation()));
+            ps.setString(15, nullIfBlank(c.getImages()));
             ps.executeUpdate();
             return id;
 
@@ -332,7 +333,7 @@ public class BusinessDAO {
             "  CAR_NAME=?, BRAND=?, MODEL=?, MANUFACTURING_YEAR=?," +
             "  BODY_TYPE=?, FUEL_TYPE=?, TRANSMISSION=?," +
             "  SEATING_CAPACITY=?, COLOR=?, PRICE_PER_DAY=?," +
-            "  LOCATION=?" +
+            "  LOCATION=?, IMAGES=?" +
             " WHERE CAR_ID=? AND COMPANY_ID=?";
 
         try (Connection con = getConnection();
@@ -349,8 +350,9 @@ public class BusinessDAO {
             ps.setString(9,  nullIfBlank(c.getColor()));
             ps.setDouble(10, c.getPricePerDay());
             ps.setString(11, nullIfBlank(c.getLocation()));
-            ps.setString(12, c.getCarId());
-            ps.setString(13, businessId);                 // COMPANY_ID = BUSINESS_ID
+            ps.setString(12, nullIfBlank(c.getImages()));
+            ps.setString(13, c.getCarId());
+            ps.setString(14, businessId);                 // COMPANY_ID = BUSINESS_ID
             return ps.executeUpdate() > 0;
         }
     }
@@ -470,6 +472,7 @@ public class BusinessDAO {
         c.setColor(rs.getString("COLOR"));
         c.setPricePerDay(rs.getDouble("PRICE_PER_DAY"));
         c.setLocation(rs.getString("LOCATION"));
+        c.setImages(rs.getString("IMAGES"));
         c.setAvailabilityStatus(rs.getString("AVAILABILITY_STATUS"));
         return c;
     }
@@ -521,7 +524,7 @@ public class BusinessDAO {
             "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
             "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
             "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       AVAILABILITY_STATUS" +
+            "       IMAGES, AVAILABILITY_STATUS" +
             "  FROM CAR_DETAILS" +
             " WHERE COMPANY_ID = ?" +
             " ORDER BY" +

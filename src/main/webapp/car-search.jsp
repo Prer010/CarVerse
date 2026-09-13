@@ -115,32 +115,24 @@
 
                                 </div>
 
-                                  <%
-                                        String userName = (String) session.getAttribute("USERNAME");
-                                        String userId = (String) session.getAttribute("USERID");
+                                <% String userName=(String) session.getAttribute("USERNAME"); String userId=(String)
+                                    session.getAttribute("USERID"); if (userName==null || userId==null) { %>
 
-                                        if (userName == null || userId == null) {
-                                    %>
+                                    <!-- User is not logged in -->
+                                    <a class="btn btn-outline" href="login.html">Sign in</a>
 
-                                        <!-- User is not logged in -->
-                                        <a class="btn btn-outline" href="login.html">Sign in</a>
+                                    <a class="btn btn-primary" href="user_registration.html">
+                                        Sign up →
+                                    </a>
 
-                                        <a class="btn btn-primary" href="user_registration.html">
-                                            Sign up →
-                                        </a>
-
-                                    <%
-                                        } else {
-                                    %>
+                                    <% } else { %>
 
                                         <!-- Logged-in user -->
                                         <a class="user-name" href="view_profile">
                                             Welcome, <%= userName %>
                                         </a>
 
-                                    <%
-                                        }
-                                    %>
+                                        <% } %>
 
                             </div>
 
@@ -298,11 +290,6 @@
 
                                         <select id="sort-results">
 
-                                            <option value="Popularity" <%="Popularity" .equals(selectedSort)
-                                                ? "selected" : "" %>>
-                                                Popularity
-                                            </option>
-
                                             <option value="Price: Low to High" <%="Price: Low to High"
                                                 .equals(selectedSort) ? "selected" : "" %>>
                                                 Price: Low to High
@@ -311,11 +298,6 @@
                                             <option value="Price: High to Low" <%="Price: High to Low"
                                                 .equals(selectedSort) ? "selected" : "" %>>
                                                 Price: High to Low
-                                            </option>
-
-                                            <option value="Newest first" <%="Newest first" .equals(selectedSort)
-                                                ? "selected" : "" %>>
-                                                Newest first
                                             </option>
 
                                         </select>
@@ -550,12 +532,13 @@
                                                             Brand
                                                         </summary>
 
-                                                        <% String[] availableBrands={"Maruti Suzuki", "Hyundai" , "Tata"
-                                                            , "Mahindra" , "Toyota" , "Kia" , "BMW" , "Mercedes-Benz" };
-                                                            for (String b : availableBrands) { boolean isChecked=false;
-                                                            if (selectedBrands !=null) { for (String sb :
-                                                            selectedBrands) { if (b.equalsIgnoreCase(sb)) {
-                                                            isChecked=true; break; } } } %>
+                                                        <% String[] availableBrands={"Maruti", "Hyundai" , "Tata"
+                                                            , "Mahindra" , "Toyota" , "Kia" , "Jeep" , "Renault"
+                                                            , "Volkswagen" , "Skoda" , "Honda" }; for (String b :
+                                                            availableBrands) { boolean isChecked=false; if
+                                                            (selectedBrands !=null) { for (String sb : selectedBrands) {
+                                                            if (b.equalsIgnoreCase(sb)) { isChecked=true; break; } } }
+                                                            %>
                                                             <label>
                                                                 <input type="checkbox" name="brand" value="<%= b %>"
                                                                     <%=isChecked ? "checked" : "" %>>
@@ -1001,10 +984,13 @@
                                                                             %>
 
                                                                             <button
-                                                                                class="page <%= (i == currentPage) ? "active" : "" %>"
+                                                                                class="page <%= (i == currentPage) ? "
+                                                                                active" : "" %>"
                                                                                 type="button"
                                                                                 data-page="<%= i %>"
-                                                                                    <%= (i==currentPage) ? "aria-current=\"page\"" : "" %>>
+                                                                                    <%= (i==currentPage)
+                                                                                        ? "aria-current=\" page\"" : ""
+                                                                                        %>>
 
                                                                                         <%= i %>
 

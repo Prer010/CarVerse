@@ -265,6 +265,12 @@
             <input type="text" name="location"
                    value="<%= editCar.getLocation() == null ? "" : editCar.getLocation() %>">
           </div>
+          <div class="field-wrap full-span">
+            <label>Image URLs (comma-separated)</label>
+            <input type="text" name="images"
+                   value="<%= editCar.getImages() == null ? "" : editCar.getImages() %>"
+                   placeholder="e.g. assets/images/car1.jpg, https://example.com/car2.jpg">
+          </div>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -356,11 +362,17 @@
                    value="<%= formCar.getPricePerDay() == 0 ? "" : formCar.getPricePerDay() %>"
                    placeholder="e.g. 2500" required>
           </div>
-          <div class="field-wrap">
+          <div class="field-wrap full-span">
             <label>Location</label>
             <input type="text" name="location"
                    value="<%= formCar.getLocation() == null ? "" : formCar.getLocation() %>"
                    placeholder="e.g. Mumbai, Maharashtra">
+          </div>
+          <div class="field-wrap full-span">
+            <label>Image URLs (comma-separated)</label>
+            <input type="text" name="images"
+                   value="<%= formCar.getImages() == null ? "" : formCar.getImages() %>"
+                   placeholder="e.g. assets/images/car1.jpg, https://example.com/car2.jpg">
           </div>
         </div>
         <div class="form-actions">
