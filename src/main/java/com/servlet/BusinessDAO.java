@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -229,15 +230,17 @@ public class BusinessDAO {
      */
     public List<BusinessCarBean> getCarsByBusiness(String businessId) throws Exception {
         String sql =
-            "SELECT CAR_ID," +
-            "       COMPANY_ID AS BUSINESS_ID," +
-            "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
-            "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
-            "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       IMAGES, AVAILABILITY_STATUS" +
-            "  FROM CAR_DETAILS" +
-            " WHERE COMPANY_ID = ?" +
-            " ORDER BY CAR_ID DESC";
+            "SELECT c.CAR_ID," +
+            "       c.COMPANY_ID AS BUSINESS_ID," +
+            "       c.REGISTRATION_NUMBER, c.MODEL_NAME, c.BRAND," +
+            "       c.BODY_TYPE," +
+            "       s.FUEL_TYPE, s.TRANSMISSION_TYPE AS TRANSMISSION," +
+            "       c.SEATING_CAPACITY, c.PRICE_RANGE," +
+            "       c.IMAGES, c.AVAILABILITY_STATUS" +
+            "  FROM CAR_DETAILS c" +
+            "  LEFT JOIN CAR_SPECS s ON s.CAR_ID = c.CAR_ID" +
+            " WHERE c.COMPANY_ID = ?" +
+            " ORDER BY c.CAR_ID DESC";
 
         List<BusinessCarBean> list = new ArrayList<>();
         try (Connection con = getConnection();
@@ -256,14 +259,16 @@ public class BusinessDAO {
      */
     public BusinessCarBean getCarById(String carId, String businessId) throws Exception {
         String sql =
-            "SELECT CAR_ID," +
-            "       COMPANY_ID AS BUSINESS_ID," +
-            "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
-            "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
-            "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       IMAGES, AVAILABILITY_STATUS" +
-            "  FROM CAR_DETAILS" +
-            " WHERE CAR_ID = ? AND COMPANY_ID = ?";
+            "SELECT c.CAR_ID," +
+            "       c.COMPANY_ID AS BUSINESS_ID," +
+            "       c.REGISTRATION_NUMBER, c.MODEL_NAME, c.BRAND," +
+            "       c.BODY_TYPE," +
+            "       s.FUEL_TYPE, s.TRANSMISSION_TYPE AS TRANSMISSION," +
+            "       c.SEATING_CAPACITY, c.PRICE_RANGE," +
+            "       c.IMAGES, c.AVAILABILITY_STATUS" +
+            "  FROM CAR_DETAILS c" +
+            "  LEFT JOIN CAR_SPECS s ON s.CAR_ID = c.CAR_ID" +
+            " WHERE c.CAR_ID = ? AND c.COMPANY_ID = ?";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -277,41 +282,61 @@ public class BusinessDAO {
 
     /**
      * Inserts a new row into CAR_DETAILS for the given business partner.
+     * Also inserts transmission and fuel_type into CAR_SPECS.
      * COMPANY_ID is set to the partner's BUSINESS_ID.
      * @return  The generated carId.
      * @throws  DuplicateRegistrationException if REGISTRATION_NUMBER already exists.
      */
     public String addCar(BusinessCarBean c) throws DuplicateRegistrationException, Exception {
-        String id = generateCarId();
-
-        String sql =
+        String sqlCar =
             "INSERT INTO CAR_DETAILS (" +
-            "  CAR_ID, COMPANY_ID, REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
-            "  MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
-            "  SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
+            "  CAR_ID, COMPANY_ID, REGISTRATION_NUMBER, MODEL_NAME, BRAND," +
+            "  BODY_TYPE, SEATING_CAPACITY, PRICE_RANGE," +
             "  IMAGES, AVAILABILITY_STATUS" +
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'AVAILABLE')";
+            ") VALUES (?,?,?,?,?,?,?,?,?, 'AVAILABLE')";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sqlSpecs =
+            "INSERT INTO CAR_SPECS (" +
+            "  CAR_ID, BRAND, MODEL, TRANSMISSION_TYPE, FUEL_TYPE, SEATING_CAPACITY" +
+            ") VALUES (?,?,?,?,?,?)";
 
-            ps.setString(1,  id);
-            ps.setString(2,  c.getBusinessId());          // COMPANY_ID = BUSINESS_ID
-            ps.setString(3,  c.getRegistrationNumber().trim().toUpperCase());
-            ps.setString(4,  c.getCarName().trim());
-            ps.setString(5,  c.getBrand().trim());
-            ps.setString(6,  c.getModel().trim());
-            ps.setInt(7,     c.getManufacturingYear());
-            ps.setString(8,  nullIfBlank(c.getBodyType()));
-            ps.setString(9,  nullIfBlank(c.getFuelType()));
-            ps.setString(10, nullIfBlank(c.getTransmission()));
-            ps.setInt(11,    c.getSeatingCapacity());
-            ps.setString(12, nullIfBlank(c.getColor()));
-            ps.setDouble(13, c.getPricePerDay());
-            ps.setString(14, nullIfBlank(c.getLocation()));
-            ps.setString(15, nullIfBlank(c.getImages()));
-            ps.executeUpdate();
-            return id;
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false);
+
+            long numId;
+            String nextIdSql = "SELECT NVL(MAX(CAR_ID), 0) + 1 FROM CAR_DETAILS";
+            try (Statement st = con.createStatement();
+                 ResultSet rs = st.executeQuery(nextIdSql)) {
+                numId = rs.next() ? rs.getLong(1) : 1L;
+            }
+            String idStr = String.valueOf(numId);
+
+            try (PreparedStatement ps = con.prepareStatement(sqlCar)) {
+                ps.setLong(1,   numId);
+                ps.setString(2, c.getBusinessId());          // COMPANY_ID = BUSINESS_ID
+                ps.setString(3, c.getRegistrationNumber().trim().toUpperCase());
+                ps.setString(4, c.getModelName().trim());
+                ps.setString(5, c.getBrand().trim());
+                ps.setString(6, nullIfBlank(c.getBodyType()));
+                ps.setInt(7,    c.getSeatingCapacity());
+                ps.setString(8, nullIfBlank(c.getPriceRange()));
+                ps.setString(9, nullIfBlank(c.getImages()));
+                ps.executeUpdate();
+            }
+
+            // Save specs (transmission, fuel type) into CAR_SPECS
+            try (PreparedStatement psSpecs = con.prepareStatement(sqlSpecs)) {
+                psSpecs.setLong(1,   numId);
+                psSpecs.setString(2, c.getBrand().trim());
+                psSpecs.setString(3, c.getModelName().trim());
+                psSpecs.setString(4, nullIfBlank(c.getTransmission()));
+                psSpecs.setString(5, nullIfBlank(c.getFuelType()));
+                psSpecs.setString(6, String.valueOf(c.getSeatingCapacity()));
+                psSpecs.executeUpdate();
+            }
+
+            con.commit();
+            return idStr;
 
         } catch (SQLException e) {
             if (e.getErrorCode() == 1) {
@@ -324,36 +349,52 @@ public class BusinessDAO {
 
     /**
      * Updates an existing CAR_DETAILS row's editable fields.
+     * Also updates CAR_SPECS for transmission and fuel type.
      * COMPANY_ID guard ensures the car belongs to the logged-in partner.
      * @return  true if the row was found and updated.
      */
     public boolean updateCar(BusinessCarBean c, String businessId) throws Exception {
-        String sql =
+        String sqlCar =
             "UPDATE CAR_DETAILS SET" +
-            "  CAR_NAME=?, BRAND=?, MODEL=?, MANUFACTURING_YEAR=?," +
-            "  BODY_TYPE=?, FUEL_TYPE=?, TRANSMISSION=?," +
-            "  SEATING_CAPACITY=?, COLOR=?, PRICE_PER_DAY=?," +
-            "  LOCATION=?, IMAGES=?" +
+            "  MODEL_NAME=?, BRAND=?," +
+            "  BODY_TYPE=?, SEATING_CAPACITY=?, PRICE_RANGE=?," +
+            "  IMAGES=?" +
             " WHERE CAR_ID=? AND COMPANY_ID=?";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sqlSpecs =
+            "UPDATE CAR_SPECS SET" +
+            "  BRAND=?, MODEL=?, TRANSMISSION_TYPE=?, FUEL_TYPE=?" +
+            " WHERE CAR_ID=?";
 
-            ps.setString(1,  c.getCarName().trim());
-            ps.setString(2,  c.getBrand().trim());
-            ps.setString(3,  c.getModel().trim());
-            ps.setInt(4,     c.getManufacturingYear());
-            ps.setString(5,  nullIfBlank(c.getBodyType()));
-            ps.setString(6,  nullIfBlank(c.getFuelType()));
-            ps.setString(7,  nullIfBlank(c.getTransmission()));
-            ps.setInt(8,     c.getSeatingCapacity());
-            ps.setString(9,  nullIfBlank(c.getColor()));
-            ps.setDouble(10, c.getPricePerDay());
-            ps.setString(11, nullIfBlank(c.getLocation()));
-            ps.setString(12, nullIfBlank(c.getImages()));
-            ps.setString(13, c.getCarId());
-            ps.setString(14, businessId);                 // COMPANY_ID = BUSINESS_ID
-            return ps.executeUpdate() > 0;
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false);
+            boolean updated;
+
+            try (PreparedStatement ps = con.prepareStatement(sqlCar)) {
+                ps.setString(1, c.getModelName().trim());
+                ps.setString(2, c.getBrand().trim());
+                ps.setString(3, nullIfBlank(c.getBodyType()));
+                ps.setInt(4,    c.getSeatingCapacity());
+                ps.setString(5, nullIfBlank(c.getPriceRange()));
+                ps.setString(6, nullIfBlank(c.getImages()));
+                ps.setString(7, c.getCarId());
+                ps.setString(8, businessId);                 // COMPANY_ID = BUSINESS_ID
+                updated = ps.executeUpdate() > 0;
+            }
+
+            if (updated) {
+                try (PreparedStatement psSpecs = con.prepareStatement(sqlSpecs)) {
+                    psSpecs.setString(1, c.getBrand().trim());
+                    psSpecs.setString(2, c.getModelName().trim());
+                    psSpecs.setString(3, nullIfBlank(c.getTransmission()));
+                    psSpecs.setString(4, nullIfBlank(c.getFuelType()));
+                    psSpecs.setString(5, c.getCarId());
+                    psSpecs.executeUpdate();
+                }
+            }
+
+            con.commit();
+            return updated;
         }
     }
 
@@ -420,11 +461,22 @@ public class BusinessDAO {
 
         String deleteSql =
             "DELETE FROM CAR_DETAILS WHERE CAR_ID=? AND COMPANY_ID=?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(deleteSql)) {
-            ps.setString(1, carId);
-            ps.setString(2, businessId);
-            return ps.executeUpdate() > 0;
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false);
+            // Delete specs first to maintain foreign key integrity
+            try (PreparedStatement ps = con.prepareStatement("DELETE FROM CAR_SPECS WHERE CAR_ID=?")) {
+                ps.setString(1, carId);
+                ps.executeUpdate();
+            }
+
+            int deleted;
+            try (PreparedStatement ps = con.prepareStatement(deleteSql)) {
+                ps.setString(1, carId);
+                ps.setString(2, businessId);
+                deleted = ps.executeUpdate();
+            }
+            con.commit();
+            return deleted > 0;
         }
     }
 
@@ -461,17 +513,14 @@ public class BusinessDAO {
         c.setCarId(rs.getString("CAR_ID"));
         c.setBusinessId(rs.getString("BUSINESS_ID")); // aliased from COMPANY_ID
         c.setRegistrationNumber(rs.getString("REGISTRATION_NUMBER"));
-        c.setCarName(rs.getString("CAR_NAME"));
+        String modelName = rs.getString("MODEL_NAME");
+        c.setModelName(modelName);
         c.setBrand(rs.getString("BRAND"));
-        c.setModel(rs.getString("MODEL"));
-        c.setManufacturingYear(rs.getInt("MANUFACTURING_YEAR"));
         c.setBodyType(rs.getString("BODY_TYPE"));
         c.setFuelType(rs.getString("FUEL_TYPE"));
         c.setTransmission(rs.getString("TRANSMISSION"));
         c.setSeatingCapacity(rs.getInt("SEATING_CAPACITY"));
-        c.setColor(rs.getString("COLOR"));
-        c.setPricePerDay(rs.getDouble("PRICE_PER_DAY"));
-        c.setLocation(rs.getString("LOCATION"));
+        c.setPriceRange(rs.getString("PRICE_RANGE"));
         c.setImages(rs.getString("IMAGES"));
         c.setAvailabilityStatus(rs.getString("AVAILABILITY_STATUS"));
         return c;
@@ -519,20 +568,22 @@ public class BusinessDAO {
      */
     public List<BusinessCarBean> getInventoryList(String businessId) throws Exception {
         String sql =
-            "SELECT CAR_ID," +
-            "       COMPANY_ID AS BUSINESS_ID," +
-            "       REGISTRATION_NUMBER, CAR_NAME, BRAND, MODEL," +
-            "       MANUFACTURING_YEAR, BODY_TYPE, FUEL_TYPE, TRANSMISSION," +
-            "       SEATING_CAPACITY, COLOR, PRICE_PER_DAY, LOCATION," +
-            "       IMAGES, AVAILABILITY_STATUS" +
-            "  FROM CAR_DETAILS" +
-            " WHERE COMPANY_ID = ?" +
+            "SELECT c.CAR_ID," +
+            "       c.COMPANY_ID AS BUSINESS_ID," +
+            "       c.REGISTRATION_NUMBER, c.MODEL_NAME, c.BRAND," +
+            "       c.BODY_TYPE," +
+            "       s.FUEL_TYPE, s.TRANSMISSION_TYPE AS TRANSMISSION," +
+            "       c.SEATING_CAPACITY, c.PRICE_RANGE," +
+            "       c.IMAGES, c.AVAILABILITY_STATUS" +
+            "  FROM CAR_DETAILS c" +
+            "  LEFT JOIN CAR_SPECS s ON s.CAR_ID = c.CAR_ID" +
+            " WHERE c.COMPANY_ID = ?" +
             " ORDER BY" +
-            "   CASE AVAILABILITY_STATUS" +
+            "   CASE c.AVAILABILITY_STATUS" +
             "     WHEN 'BOOKED'      THEN 1" +
             "     WHEN 'AVAILABLE'   THEN 2" +
             "     WHEN 'MAINTENANCE' THEN 3" +
-            "     ELSE 4 END, CAR_NAME";
+            "     ELSE 4 END, c.MODEL_NAME";
 
         List<BusinessCarBean> list = new ArrayList<>();
         try (Connection con = getConnection();
@@ -584,16 +635,15 @@ public class BusinessDAO {
         public String userId;
         public String customerName;   // from USER_REGISTRATION
         public String carId;          // CAR_DETAILS.CAR_ID
-        public String carName;        // from CAR_DETAILS
+        public String carName;        // BRAND + MODEL_NAME from CAR_DETAILS
         public String registrationNo; // from CAR_DETAILS
         public String bookingDate;
-        public String startDate;
-        public String endDate;
+        // START_DATE / END_DATE do not exist in BOOKING_DETAILS table
         public String pickupLocation;
         public String dropLocation;
         public double totalAmount;
         public String bookingStatus;
-        public String paymentStatus;  // from PAYMENT_DETAILS (may be null)
+        // PAYMENT_DETAILS table not joined — no paymentStatus
         public String cancellationStatus;
         public String cancellationReason;
         public String cancellationDate;
@@ -609,20 +659,16 @@ public class BusinessDAO {
         StringBuilder sql = new StringBuilder(
             "SELECT b.BOOKING_ID, b.USER_ID," +
             "       NVL(u.USERNAME,'Unknown') AS CUSTOMER_NAME," +
-            "       b.CAR_ID, c.CAR_NAME, c.REGISTRATION_NUMBER," +
+            "       b.CAR_ID, TRIM(c.BRAND || ' ' || c.MODEL_NAME) AS CAR_NAME, c.REGISTRATION_NUMBER," +
             "       TO_CHAR(b.BOOKING_DATE,'DD-Mon-YYYY') AS BOOKING_DATE," +
-            "       TO_CHAR(b.START_DATE,'DD-Mon-YYYY')   AS START_DATE," +
-            "       TO_CHAR(b.END_DATE,'DD-Mon-YYYY')     AS END_DATE," +
             "       b.PICKUP_LOCATION, b.DROP_LOCATION," +
             "       b.TOTAL_AMOUNT, b.BOOKING_STATUS," +
-            "       NVL(p.PAYMENT_STATUS,'N/A') AS PAYMENT_STATUS," +
             "       NVL(b.CANCELLATION_STATUS,'NONE') AS CANCELLATION_STATUS," +
             "       b.CANCELLATION_REASON," +
             "       TO_CHAR(b.CANCELLATION_DATE,'DD-Mon-YYYY') AS CANCELLATION_DATE" +
             "  FROM BOOKING_DETAILS b" +
             "  JOIN CAR_DETAILS c ON c.CAR_ID = b.CAR_ID" +
             "  LEFT JOIN USER_REGISTRATION u ON u.USER_ID = b.USER_ID" +
-            "  LEFT JOIN PAYMENT_DETAILS   p ON p.BOOKING_ID = b.BOOKING_ID" +
             " WHERE c.COMPANY_ID = ?"
         );
 
@@ -648,13 +694,10 @@ public class BusinessDAO {
                     r.carName            = rs.getString("CAR_NAME");
                     r.registrationNo     = rs.getString("REGISTRATION_NUMBER");
                     r.bookingDate        = rs.getString("BOOKING_DATE");
-                    r.startDate          = rs.getString("START_DATE");
-                    r.endDate            = rs.getString("END_DATE");
                     r.pickupLocation     = rs.getString("PICKUP_LOCATION");
                     r.dropLocation       = rs.getString("DROP_LOCATION");
                     r.totalAmount        = rs.getDouble("TOTAL_AMOUNT");
                     r.bookingStatus      = rs.getString("BOOKING_STATUS");
-                    r.paymentStatus      = rs.getString("PAYMENT_STATUS");
                     r.cancellationStatus = rs.getString("CANCELLATION_STATUS");
                     r.cancellationReason = rs.getString("CANCELLATION_REASON");
                     r.cancellationDate   = rs.getString("CANCELLATION_DATE");
@@ -859,20 +902,16 @@ public class BusinessDAO {
         String sql =
             "SELECT b.BOOKING_ID, b.USER_ID," +
             "       NVL(u.USERNAME,'Unknown') AS CUSTOMER_NAME," +
-            "       b.CAR_ID, c.CAR_NAME, c.REGISTRATION_NUMBER," +
+            "       b.CAR_ID, TRIM(c.BRAND || ' ' || c.MODEL_NAME) AS CAR_NAME, c.REGISTRATION_NUMBER," +
             "       TO_CHAR(b.BOOKING_DATE,'DD-Mon-YYYY') AS BOOKING_DATE," +
-            "       TO_CHAR(b.START_DATE,'DD-Mon-YYYY')   AS START_DATE," +
-            "       TO_CHAR(b.END_DATE,'DD-Mon-YYYY')     AS END_DATE," +
             "       b.PICKUP_LOCATION, b.DROP_LOCATION," +
             "       b.TOTAL_AMOUNT, b.BOOKING_STATUS," +
-            "       NVL(p.PAYMENT_STATUS,'N/A') AS PAYMENT_STATUS," +
             "       NVL(b.CANCELLATION_STATUS,'NONE') AS CANCELLATION_STATUS," +
             "       b.CANCELLATION_REASON," +
             "       TO_CHAR(b.CANCELLATION_DATE,'DD-Mon-YYYY') AS CANCELLATION_DATE" +
             "  FROM BOOKING_DETAILS b" +
             "  JOIN CAR_DETAILS c ON c.CAR_ID = b.CAR_ID" +
             "  LEFT JOIN USER_REGISTRATION u ON u.USER_ID = b.USER_ID" +
-            "  LEFT JOIN PAYMENT_DETAILS   p ON p.BOOKING_ID = b.BOOKING_ID" +
             " WHERE c.COMPANY_ID = ? AND b.BOOKING_STATUS <> 'CANCELLED'" +
             " ORDER BY b.BOOKING_DATE DESC";
 
@@ -890,13 +929,10 @@ public class BusinessDAO {
                     r.carName            = rs.getString("CAR_NAME");
                     r.registrationNo     = rs.getString("REGISTRATION_NUMBER");
                     r.bookingDate        = rs.getString("BOOKING_DATE");
-                    r.startDate          = rs.getString("START_DATE");
-                    r.endDate            = rs.getString("END_DATE");
                     r.pickupLocation     = rs.getString("PICKUP_LOCATION");
                     r.dropLocation       = rs.getString("DROP_LOCATION");
                     r.totalAmount        = rs.getDouble("TOTAL_AMOUNT");
                     r.bookingStatus      = rs.getString("BOOKING_STATUS");
-                    r.paymentStatus      = rs.getString("PAYMENT_STATUS");
                     r.cancellationStatus = rs.getString("CANCELLATION_STATUS");
                     r.cancellationReason = rs.getString("CANCELLATION_REASON");
                     r.cancellationDate   = rs.getString("CANCELLATION_DATE");

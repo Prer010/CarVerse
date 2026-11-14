@@ -2,13 +2,12 @@ package com.servlet;
 
 /**
  * Bean / DTO for the CAR_DETAILS table, scoped to a Business Partner.
- * Field names are kept stable so servlets and JSPs compile unchanged.
+ * Mapped to CAR_DETAILS columns (MODEL_NAME, BRAND, PRICE_RANGE, etc.).
  * "businessId" maps to CAR_DETAILS.COMPANY_ID in the database.
- * No DB logic here — see BusinessDAO.
  */
 public class BusinessCarBean {
 
-    // Primary key  (format: bpc_YYYY_<millis>)
+    // Primary key
     private String carId;
 
     // Owner
@@ -16,6 +15,7 @@ public class BusinessCarBean {
 
     // Car identification
     private String registrationNumber;
+    private String modelName;
     private String carName;
     private String brand;
     private String model;
@@ -28,30 +28,24 @@ public class BusinessCarBean {
     private int    seatingCapacity;
     private String color;
 
-    // Pricing & location
+    // Pricing
+    private String priceRange;
     private double pricePerDay;
     private String location;
 
-    // Image URLs (comma-separated or single URL)
+    // Image URLs
     private String images;
 
     // Status: AVAILABLE | BOOKED | MAINTENANCE | INACTIVE
     private String availabilityStatus;
 
-    // Timestamps (stored as String for simple JSP display)
+    // Timestamps
     private String createdAt;
     private String updatedAt;
 
-    // -----------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------
-
     public BusinessCarBean() {}
 
-    // -----------------------------------------------------------------------
     // Getters and Setters
-    // -----------------------------------------------------------------------
-
     public String getCarId()                      { return carId; }
     public void   setCarId(String v)              { this.carId = v; }
 
@@ -61,13 +55,16 @@ public class BusinessCarBean {
     public String getRegistrationNumber()         { return registrationNumber; }
     public void   setRegistrationNumber(String v) { this.registrationNumber = v; }
 
-    public String getCarName()                    { return carName; }
-    public void   setCarName(String v)            { this.carName = v; }
+    public String getModelName()                  { return modelName != null ? modelName : carName; }
+    public void   setModelName(String v)          { this.modelName = v; if (this.carName == null) this.carName = v; }
+
+    public String getCarName()                    { return getModelName(); }
+    public void   setCarName(String v)            { setModelName(v); }
 
     public String getBrand()                      { return brand; }
     public void   setBrand(String v)              { this.brand = v; }
 
-    public String getModel()                      { return model; }
+    public String getModel()                      { return model != null ? model : getModelName(); }
     public void   setModel(String v)              { this.model = v; }
 
     public int    getManufacturingYear()          { return manufacturingYear; }
@@ -88,8 +85,20 @@ public class BusinessCarBean {
     public String getColor()                      { return color; }
     public void   setColor(String v)              { this.color = v; }
 
-    public double getPricePerDay()                { return pricePerDay; }
-    public void   setPricePerDay(double v)        { this.pricePerDay = v; }
+    public String getPriceRange()                 { return priceRange != null ? priceRange : (pricePerDay > 0 ? "₹" + (long)pricePerDay : ""); }
+    public void   setPriceRange(String v)         { this.priceRange = v; }
+
+    public double getPricePerDay() {
+        if (pricePerDay > 0) return pricePerDay;
+        if (priceRange != null) {
+            try {
+                String clean = priceRange.replaceAll("[^0-9.]", "").trim();
+                if (!clean.isEmpty()) return Double.parseDouble(clean);
+            } catch (Exception ignored) {}
+        }
+        return 0.0;
+    }
+    public void   setPricePerDay(double v)        { this.pricePerDay = v; if (priceRange == null) priceRange = "₹" + (long)v; }
 
     public String getLocation()                   { return location; }
     public void   setLocation(String v)           { this.location = v; }

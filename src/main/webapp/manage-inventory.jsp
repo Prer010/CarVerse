@@ -166,11 +166,10 @@
         <thead>
           <tr>
             <th>Reg. No.</th>
-            <th>Car Name</th>
             <th>Brand</th>
+            <th>Model Name</th>
             <th>Fuel</th>
-            <th>Location</th>
-            <th>Price / Day</th>
+            <th>Price Range</th>
             <th>Current Status</th>
             <th>Update Status</th>
           </tr>
@@ -189,11 +188,10 @@
           %>
           <tr>
             <td><strong><%= c.getRegistrationNumber() %></strong></td>
-            <td><%= c.getCarName() %></td>
             <td><%= c.getBrand() %></td>
+            <td><%= c.getModelName() %></td>
             <td><%= c.getFuelType() == null ? "—" : c.getFuelType() %></td>
-            <td><%= c.getLocation() == null ? "—" : c.getLocation() %></td>
-            <td>₹<%= String.format("%,.0f", c.getPricePerDay()) %></td>
+            <td><%= c.getPriceRange() == null || c.getPriceRange().isEmpty() ? "—" : c.getPriceRange() %></td>
             <td><span class="badge <%= statusBadge %>"><%= c.getAvailabilityStatus() %></span></td>
             <td>
               <% if (canChangeStatus) { %>

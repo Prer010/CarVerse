@@ -180,27 +180,23 @@
     <!-- ══ EDIT FORM (shown when mode=edit) ══════════════════════ -->
     <% if ("edit".equals(mode) && editCar != null) { %>
     <div class="form-panel">
-      <h3>✏️ Edit Car — <%= editCar.getCarName() %></h3>
+      <h3>✏️ Edit Car — <%= editCar.getModelName() %></h3>
       <form action="BusinessCar" method="post">
         <input type="hidden" name="action" value="update">
         <input type="hidden" name="carId"  value="<%= editCar.getCarId() %>">
+        <input type="hidden" name="registrationNumber" value="<%= editCar.getRegistrationNumber() != null ? editCar.getRegistrationNumber() : "" %>">
         <div class="form-grid">
           <div class="field-wrap">
-            <label>Car Name *</label>
-            <input type="text" name="carName" value="<%= editCar.getCarName() %>" required>
+            <label>Registration Number</label>
+            <input type="text" value="<%= editCar.getRegistrationNumber() != null ? editCar.getRegistrationNumber() : "—" %>" disabled style="background:#f1f5f9;cursor:not-allowed;">
           </div>
           <div class="field-wrap">
             <label>Brand *</label>
-            <input type="text" name="brand" value="<%= editCar.getBrand() %>" required>
+            <input type="text" name="brand" value="<%= editCar.getBrand() %>" placeholder="e.g. Tata" required>
           </div>
           <div class="field-wrap">
-            <label>Model *</label>
-            <input type="text" name="model" value="<%= editCar.getModel() %>" required>
-          </div>
-          <div class="field-wrap">
-            <label>Manufacturing Year *</label>
-            <input type="number" name="manufacturingYear" min="1900" max="2100"
-                   value="<%= editCar.getManufacturingYear() %>" required>
+            <label>Model Name *</label>
+            <input type="text" name="modelName" value="<%= editCar.getModelName() %>" placeholder="e.g. Nexon EV Max" required>
           </div>
           <div class="field-wrap">
             <label>Body Type</label>
@@ -238,18 +234,10 @@
                    value="<%= editCar.getSeatingCapacity() %>" required>
           </div>
           <div class="field-wrap">
-            <label>Color</label>
-            <input type="text" name="color" value="<%= editCar.getColor() == null ? "" : editCar.getColor() %>">
-          </div>
-          <div class="field-wrap">
-            <label>Price Per Day (₹) *</label>
-            <input type="number" name="pricePerDay" min="1" step="0.01"
-                   value="<%= editCar.getPricePerDay() %>" required>
-          </div>
-          <div class="field-wrap full-span">
-            <label>Location</label>
-            <input type="text" name="location"
-                   value="<%= editCar.getLocation() == null ? "" : editCar.getLocation() %>">
+            <label>Price Range *</label>
+            <input type="text" name="priceRange"
+                   value="<%= editCar.getPriceRange() == null ? "" : editCar.getPriceRange() %>"
+                   placeholder="e.g. ₹2,000 - ₹3,000 / day" required>
           </div>
           <div class="field-wrap full-span">
             <label>Image URLs (comma-separated)</label>
@@ -280,28 +268,16 @@
                    placeholder="e.g. MH02AB1234" required>
           </div>
           <div class="field-wrap">
-            <label>Car Name *</label>
-            <input type="text" name="carName"
-                   value="<%= formCar.getCarName() == null ? "" : formCar.getCarName() %>"
-                   placeholder="e.g. Tata Nexon EV" required>
-          </div>
-          <div class="field-wrap">
             <label>Brand *</label>
             <input type="text" name="brand"
                    value="<%= formCar.getBrand() == null ? "" : formCar.getBrand() %>"
                    placeholder="e.g. Tata" required>
           </div>
           <div class="field-wrap">
-            <label>Model *</label>
-            <input type="text" name="model"
-                   value="<%= formCar.getModel() == null ? "" : formCar.getModel() %>"
+            <label>Model Name *</label>
+            <input type="text" name="modelName"
+                   value="<%= formCar.getModelName() == null ? "" : formCar.getModelName() %>"
                    placeholder="e.g. Nexon EV Max" required>
-          </div>
-          <div class="field-wrap">
-            <label>Manufacturing Year *</label>
-            <input type="number" name="manufacturingYear" min="1900" max="2100"
-                   value="<%= formCar.getManufacturingYear() == 0 ? "" : formCar.getManufacturingYear() %>"
-                   placeholder="e.g. 2023" required>
           </div>
           <div class="field-wrap">
             <label>Body Type</label>
@@ -337,22 +313,10 @@
                    placeholder="e.g. 5" required>
           </div>
           <div class="field-wrap">
-            <label>Color</label>
-            <input type="text" name="color"
-                   value="<%= formCar.getColor() == null ? "" : formCar.getColor() %>"
-                   placeholder="e.g. Pearl White">
-          </div>
-          <div class="field-wrap">
-            <label>Price Per Day (₹) *</label>
-            <input type="number" name="pricePerDay" min="1" step="0.01"
-                   value="<%= formCar.getPricePerDay() == 0 ? "" : formCar.getPricePerDay() %>"
-                   placeholder="e.g. 2500" required>
-          </div>
-          <div class="field-wrap full-span">
-            <label>Location</label>
-            <input type="text" name="location"
-                   value="<%= formCar.getLocation() == null ? "" : formCar.getLocation() %>"
-                   placeholder="e.g. Mumbai, Maharashtra">
+            <label>Price Range *</label>
+            <input type="text" name="priceRange"
+                   value="<%= formCar.getPriceRange() == null ? "" : formCar.getPriceRange() %>"
+                   placeholder="e.g. ₹2,000 - ₹3,000 / day" required>
           </div>
           <div class="field-wrap full-span">
             <label>Image URLs (comma-separated)</label>
@@ -391,13 +355,13 @@
         <thead>
           <tr>
             <th>Reg. No.</th>
-            <th>Car</th>
-            <th>Brand / Model</th>
-            <th>Year</th>
+            <th>Brand</th>
+            <th>Model Name</th>
+            <th>Body Type</th>
             <th>Fuel</th>
             <th>Transmission</th>
             <th>Seats</th>
-            <th>Price / Day</th>
+            <th>Price Range</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -418,13 +382,13 @@
           %>
           <tr>
             <td><strong><%= c.getRegistrationNumber() %></strong></td>
-            <td><%= c.getCarName() %></td>
-            <td><%= c.getBrand() %> <%= c.getModel() %></td>
-            <td><%= c.getManufacturingYear() %></td>
+            <td><%= c.getBrand() %></td>
+            <td><%= c.getModelName() %></td>
+            <td><%= c.getBodyType() == null ? "—" : c.getBodyType() %></td>
             <td><%= c.getFuelType() == null ? "—" : c.getFuelType() %></td>
             <td><%= c.getTransmission() == null ? "—" : c.getTransmission() %></td>
             <td style="text-align:center;"><%= c.getSeatingCapacity() %></td>
-            <td>₹<%= String.format("%,.0f", c.getPricePerDay()) %></td>
+            <td><%= c.getPriceRange() == null || c.getPriceRange().isEmpty() ? "—" : c.getPriceRange() %></td>
             <td><span class="badge <%= statusBadge %>"><%= c.getAvailabilityStatus() %></span></td>
             <td style="white-space:nowrap;">
               <!-- Edit -->
@@ -442,7 +406,7 @@
 
               <!-- Delete -->
               <form action="BusinessCar" method="post" style="display:inline;"
-                    onsubmit="return confirm('Delete <%= c.getCarName().replace("'","\\x27") %>? This cannot be undone.');">
+                    onsubmit="return confirm('Delete <%= c.getModelName().replace("'","\\x27") %>? This cannot be undone.');">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="carId"  value="<%= c.getCarId() %>">
                 <button type="submit" class="btn-sm btn-del">Delete</button>

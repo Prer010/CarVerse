@@ -118,7 +118,32 @@ END;
 COMMIT;
 
 -- -----------------------------------------------------------------------------
--- 3. Verify
+-- 3. CAR_DETAILS — add minimal columns for business partner fleet management
+--    (MODEL_NAME, BRAND, BODY_TYPE, PRICE_RANGE, SEATING_CAPACITY, IMAGES already exist in CAR_DETAILS;
+--     TRANSMISSION_TYPE, FUEL_TYPE, MODEL exist in CAR_SPECS)
+-- -----------------------------------------------------------------------------
+
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER TABLE CAR_DETAILS ADD AVAILABILITY_STATUS VARCHAR2(20) DEFAULT ''AVAILABLE''';
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -1430 THEN RAISE; END IF;
+END;
+/
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER TABLE CAR_DETAILS ADD COMPANY_ID VARCHAR2(40)';
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -1430 THEN RAISE; END IF;
+END;
+/
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER TABLE CAR_DETAILS ADD REGISTRATION_NUMBER VARCHAR2(50)';
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -1430 THEN RAISE; END IF;
+END;
+/
+
+COMMIT;
+
+-- -----------------------------------------------------------------------------
+-- 4. Verify
 -- -----------------------------------------------------------------------------
 SELECT 'CANCELLATION columns added to BOOKING_DETAILS.' AS STATUS FROM DUAL;
 SELECT 'COMMISSION_DETAILS altered with config columns + default 15% rate.' AS STATUS FROM DUAL;
+SELECT 'CAR_DETAILS altered with minimal business partner fleet columns.' AS STATUS FROM DUAL;
