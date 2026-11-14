@@ -131,7 +131,7 @@ public class BusinessCarServlet extends HttpServlet {
             throws Exception, IOException, ServletException {
 
         BusinessCarBean c = buildBeanFromRequest(req, businessId);
-        String validationError = validate(c);
+        String validationError = validate(c, false);
         if (validationError != null) {
             req.setAttribute("error", validationError);
             req.setAttribute("formCar", c);
@@ -166,7 +166,7 @@ public class BusinessCarServlet extends HttpServlet {
         BusinessCarBean c = buildBeanFromRequest(req, businessId);
         c.setCarId(carId.trim());
 
-        String validationError = validate(c);
+        String validationError = validate(c, true);
         if (validationError != null) {
             req.setAttribute("error", validationError);
             req.setAttribute("editCar", c);
@@ -239,37 +239,41 @@ public class BusinessCarServlet extends HttpServlet {
         BusinessCarBean c = new BusinessCarBean();
         c.setBusinessId(businessId);
         c.setRegistrationNumber(trim(req.getParameter("registrationNumber")));
-        c.setCarName(trim(req.getParameter("carName")));
+
+        String modelName = trim(req.getParameter("modelName"));
+        if (modelName.isEmpty()) {
+            modelName = trim(req.getParameter("carName"));
+        }
+        if (modelName.isEmpty()) {
+            modelName = trim(req.getParameter("model"));
+        }
+        c.setModelName(modelName);
+
         c.setBrand(trim(req.getParameter("brand")));
-        c.setModel(trim(req.getParameter("model")));
         c.setBodyType(trim(req.getParameter("bodyType")));
         c.setFuelType(trim(req.getParameter("fuelType")));
         c.setTransmission(trim(req.getParameter("transmission")));
-        c.setColor(trim(req.getParameter("color")));
-        c.setLocation(trim(req.getParameter("location")));
+
+        String priceRange = trim(req.getParameter("priceRange"));
+        if (priceRange.isEmpty()) {
+            priceRange = trim(req.getParameter("pricePerDay"));
+        }
+        c.setPriceRange(priceRange);
+
         c.setImages(trim(req.getParameter("images")));
 
-        try { c.setManufacturingYear(Integer.parseInt(trim(req.getParameter("manufacturingYear")))); }
-        catch (NumberFormatException e) { c.setManufacturingYear(0); }
-
         try { c.setSeatingCapacity(Integer.parseInt(trim(req.getParameter("seatingCapacity")))); }
-        catch (NumberFormatException e) { c.setSeatingCapacity(0); }
-
-        try { c.setPricePerDay(Double.parseDouble(trim(req.getParameter("pricePerDay")))); }
-        catch (NumberFormatException e) { c.setPricePerDay(0); }
+        catch (NumberFormatException e) { c.setSeatingCapacity(5); }
 
         return c;
     }
 
     /** Returns a validation error message, or null if valid. */
-    private String validate(BusinessCarBean c) {
-        if (blank(c.getRegistrationNumber())) return "Registration number is required.";
-        if (blank(c.getCarName()))            return "Car name is required.";
+    private String validate(BusinessCarBean c, boolean isUpdate) {
+        if (!isUpdate && blank(c.getRegistrationNumber())) return "Registration number is required.";
+        if (blank(c.getModelName()))          return "Model name is required.";
         if (blank(c.getBrand()))              return "Brand is required.";
-        if (blank(c.getModel()))              return "Model is required.";
-        if (c.getManufacturingYear() < 1900 || c.getManufacturingYear() > 2100)
-            return "Please enter a valid manufacturing year (1900–2100).";
-        if (c.getPricePerDay() <= 0)          return "Price per day must be greater than zero.";
+        if (blank(c.getPriceRange()))         return "Price range is required.";
         if (c.getSeatingCapacity() < 1)       return "Seating capacity must be at least 1.";
         return null;
     }

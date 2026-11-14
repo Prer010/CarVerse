@@ -638,27 +638,10 @@ body {
             </a>
 
 
-            <a href="Admin?action=payments" class="card">
-
-                <div class="card-number">
-                    05
-                </div>
-
-                <h3>
-                    Payment Details
-                </h3>
-
-                <p>
-                    View payment and transaction records.
-                </p>
-
-            </a>
-
-
             <a href="Admin?action=commission" class="card">
 
                 <div class="card-number">
-                    06
+                    05
                 </div>
 
                 <h3>
@@ -672,27 +655,10 @@ body {
             </a>
 
 
-            <a href="Admin?action=carfeed" class="card">
-
-                <div class="card-number">
-                    07
-                </div>
-
-                <h3>
-                    Car Feedback
-                </h3>
-
-                <p>
-                    View feedback submitted for cars.
-                </p>
-
-            </a>
-
-
             <a href="Admin?action=platformfeed" class="card">
 
                 <div class="card-number">
-                    08
+                    06
                 </div>
 
                 <h3>
@@ -709,7 +675,7 @@ body {
             <a href="admin_maintenance_update.jsp" class="card">
 
                 <div class="card-number">
-                    09
+                    07
                 </div>
 
                 <h3>
@@ -718,23 +684,6 @@ body {
 
                 <p>
                     View maintenance information of vehicles.
-                </p>
-
-            </a>
-
-
-            <a href="Admin?action=comparison" class="card">
-
-                <div class="card-number">
-                    10
-                </div>
-
-                <h3>
-                    Comparison Details
-                </h3>
-
-                <p>
-                    View car comparison records.
                 </p>
 
             </a>

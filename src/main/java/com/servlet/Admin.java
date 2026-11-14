@@ -151,22 +151,8 @@ public class Admin extends HttpServlet {
 
 
                 pw.println("<div class='box'>");
-                pw.println("<a href='Admin?action=payments'>");
-                pw.println("Payment Details");
-                pw.println("</a>");
-                pw.println("</div>");
-
-
-                pw.println("<div class='box'>");
                 pw.println("<a href='Admin?action=commission'>");
                 pw.println("Commission Details");
-                pw.println("</a>");
-                pw.println("</div>");
-
-
-                pw.println("<div class='box'>");
-                pw.println("<a href='Admin?action=carfeed'>");
-                pw.println("Car Feedback");
                 pw.println("</a>");
                 pw.println("</div>");
 
@@ -181,13 +167,6 @@ public class Admin extends HttpServlet {
                 pw.println("<div class='box'>");
                 pw.println("<a href='Admin?action=maintenance'>");
                 pw.println("Maintenance Details");
-                pw.println("</a>");
-                pw.println("</div>");
-
-
-                pw.println("<div class='box'>");
-                pw.println("<a href='Admin?action=comparison'>");
-                pw.println("Comparison Details");
                 pw.println("</a>");
                 pw.println("</div>");
 
@@ -361,12 +340,13 @@ public class Admin extends HttpServlet {
             else if (action.equals("cars")) {
 
                 String q1 =
-                        "select car_id, company_id, car_name, brand, " +
-                        "model, manufacturing_year, registration_number, " +
-                        "fuel_type, transmission, seating_capacity, " +
-                        "body_type, color, price_per_day, " +
-                        "availability_status, location " +
-                        "from car_details";
+                        "select c.car_id, c.company_id, c.model_name, c.brand, " +
+                        "c.registration_number, " +
+                        "s.fuel_type, s.transmission_type as transmission, c.seating_capacity, " +
+                        "c.body_type, c.price_range, " +
+                        "c.availability_status " +
+                        "from car_details c " +
+                        "left join car_specs s on s.car_id = c.car_id";
 
                 ResultSet rs = stmt.executeQuery(q1);
 
@@ -380,19 +360,15 @@ public class Admin extends HttpServlet {
 
                 pw.println("<th>Car ID</th>");
                 pw.println("<th>Company ID</th>");
-                pw.println("<th>Car Name</th>");
                 pw.println("<th>Brand</th>");
-                pw.println("<th>Model</th>");
-                pw.println("<th>Year</th>");
+                pw.println("<th>Model Name</th>");
                 pw.println("<th>Registration No.</th>");
                 pw.println("<th>Fuel</th>");
                 pw.println("<th>Transmission</th>");
                 pw.println("<th>Seats</th>");
                 pw.println("<th>Body Type</th>");
-                pw.println("<th>Color</th>");
-                pw.println("<th>Price/Day</th>");
+                pw.println("<th>Price Range</th>");
                 pw.println("<th>Status</th>");
-                pw.println("<th>Location</th>");
 
                 pw.println("</tr>");
 
@@ -402,19 +378,15 @@ public class Admin extends HttpServlet {
 
                     pw.println("<td>" + rs.getString("car_id") + "</td>");
                     pw.println("<td>" + rs.getString("company_id") + "</td>");
-                    pw.println("<td>" + rs.getString("car_name") + "</td>");
                     pw.println("<td>" + rs.getString("brand") + "</td>");
-                    pw.println("<td>" + rs.getString("model") + "</td>");
-                    pw.println("<td>" + rs.getString("manufacturing_year") + "</td>");
+                    pw.println("<td>" + rs.getString("model_name") + "</td>");
                     pw.println("<td>" + rs.getString("registration_number") + "</td>");
                     pw.println("<td>" + rs.getString("fuel_type") + "</td>");
                     pw.println("<td>" + rs.getString("transmission") + "</td>");
                     pw.println("<td>" + rs.getString("seating_capacity") + "</td>");
                     pw.println("<td>" + rs.getString("body_type") + "</td>");
-                    pw.println("<td>" + rs.getString("color") + "</td>");
-                    pw.println("<td>" + rs.getString("price_per_day") + "</td>");
+                    pw.println("<td>" + rs.getString("price_range") + "</td>");
                     pw.println("<td>" + rs.getString("availability_status") + "</td>");
-                    pw.println("<td>" + rs.getString("location") + "</td>");
 
                     pw.println("</tr>");
                 }
@@ -437,8 +409,8 @@ public class Admin extends HttpServlet {
             else if (action.equals("bookings")) {
 
                 String q1 =
-                        "select booking_id, user_id, car_id, company_id, " +
-                        "booking_date, start_date, end_date, " +
+                        "select booking_id, user_id, car_id, " +
+                        "booking_date, " +
                         "pickup_location, drop_location, total_amount, " +
                         "booking_status " +
                         "from booking_details";
@@ -456,10 +428,7 @@ public class Admin extends HttpServlet {
                 pw.println("<th>Booking ID</th>");
                 pw.println("<th>User ID</th>");
                 pw.println("<th>Car ID</th>");
-                pw.println("<th>Company ID</th>");
                 pw.println("<th>Booking Date</th>");
-                pw.println("<th>Start Date</th>");
-                pw.println("<th>End Date</th>");
                 pw.println("<th>Pickup</th>");
                 pw.println("<th>Drop</th>");
                 pw.println("<th>Total Amount</th>");
@@ -474,10 +443,7 @@ public class Admin extends HttpServlet {
                     pw.println("<td>" + rs.getString("booking_id") + "</td>");
                     pw.println("<td>" + rs.getString("user_id") + "</td>");
                     pw.println("<td>" + rs.getString("car_id") + "</td>");
-                    pw.println("<td>" + rs.getString("company_id") + "</td>");
                     pw.println("<td>" + rs.getString("booking_date") + "</td>");
-                    pw.println("<td>" + rs.getString("start_date") + "</td>");
-                    pw.println("<td>" + rs.getString("end_date") + "</td>");
                     pw.println("<td>" + rs.getString("pickup_location") + "</td>");
                     pw.println("<td>" + rs.getString("drop_location") + "</td>");
                     pw.println("<td>" + rs.getString("total_amount") + "</td>");
@@ -494,65 +460,6 @@ public class Admin extends HttpServlet {
                 pw.println("</body></html>");
             }
 
-
-            /*
-             
-             * PAYMENT DETAILS
-             
-             */
-
-            else if (action.equals("payments")) {
-
-                String q1 =
-                        "select payment_id, booking_id, user_id, amount, " +
-                        "payment_method, transaction_id, " +
-                        "payment_status, payment_date " +
-                        "from payment_details";
-
-                ResultSet rs = stmt.executeQuery(q1);
-
-                pw.println("<html><body>");
-
-                pw.println("<h2>Payment Details</h2>");
-
-                pw.println("<table border='2' width='100%'>");
-
-                pw.println("<tr>");
-
-                pw.println("<th>Payment ID</th>");
-                pw.println("<th>Booking ID</th>");
-                pw.println("<th>User ID</th>");
-                pw.println("<th>Amount</th>");
-                pw.println("<th>Payment Method</th>");
-                pw.println("<th>Transaction ID</th>");
-                pw.println("<th>Status</th>");
-                pw.println("<th>Payment Date</th>");
-
-                pw.println("</tr>");
-
-                while (rs.next()) {
-
-                    pw.println("<tr>");
-
-                    pw.println("<td>" + rs.getString("payment_id") + "</td>");
-                    pw.println("<td>" + rs.getString("booking_id") + "</td>");
-                    pw.println("<td>" + rs.getString("user_id") + "</td>");
-                    pw.println("<td>" + rs.getString("amount") + "</td>");
-                    pw.println("<td>" + rs.getString("payment_method") + "</td>");
-                    pw.println("<td>" + rs.getString("transaction_id") + "</td>");
-                    pw.println("<td>" + rs.getString("payment_status") + "</td>");
-                    pw.println("<td>" + rs.getString("payment_date") + "</td>");
-
-                    pw.println("</tr>");
-                }
-
-                pw.println("</table>");
-
-                pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
-
-                pw.println("</body></html>");
-            }
 
 
             /*
@@ -612,62 +519,6 @@ public class Admin extends HttpServlet {
                 pw.println("</body></html>");
             }
 
-
-            /*
-             
-             * CAR FEEDBACK
-             
-             */
-
-            else if (action.equals("carfeed")) {
-
-                String q1 =
-                        "select feed_id, user_id, company_id, car_id, " +
-                        "title, content, created_at " +
-                        "from car_feed";
-
-                ResultSet rs = stmt.executeQuery(q1);
-
-                pw.println("<html><body>");
-
-                pw.println("<h2>Car Feedback</h2>");
-
-                pw.println("<table border='2' width='100%'>");
-
-                pw.println("<tr>");
-
-                pw.println("<th>Feed ID</th>");
-                pw.println("<th>User ID</th>");
-                pw.println("<th>Company ID</th>");
-                pw.println("<th>Car ID</th>");
-                pw.println("<th>Title</th>");
-                pw.println("<th>Content</th>");
-                pw.println("<th>Created At</th>");
-
-                pw.println("</tr>");
-
-                while (rs.next()) {
-
-                    pw.println("<tr>");
-
-                    pw.println("<td>" + rs.getString("feed_id") + "</td>");
-                    pw.println("<td>" + rs.getString("user_id") + "</td>");
-                    pw.println("<td>" + rs.getString("company_id") + "</td>");
-                    pw.println("<td>" + rs.getString("car_id") + "</td>");
-                    pw.println("<td>" + rs.getString("title") + "</td>");
-                    pw.println("<td>" + rs.getString("content") + "</td>");
-                    pw.println("<td>" + rs.getString("created_at") + "</td>");
-
-                    pw.println("</tr>");
-                }
-
-                pw.println("</table>");
-
-                pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
-
-                pw.println("</body></html>");
-            }
 
 
             /*
@@ -818,85 +669,6 @@ public class Admin extends HttpServlet {
 
                 pw.println("</body></html>");
             }
-
-
-            /*
-             
-             * COMPARISON DETAILS
-             
-             */
-
-            else if (action.equals("comparison")) {
-
-                String q1 =
-                        "select comparison_id, user_id, " +
-                        "car_1_id, car_2_id, car_3_id, car_4_id, " +
-                        "comparison_date " +
-                        "from comparison_details";
-
-                ResultSet rs = stmt.executeQuery(q1);
-
-                pw.println("<html><body>");
-
-                pw.println("<h2>Car Comparison Details</h2>");
-
-                pw.println("<table border='2' width='100%'>");
-
-                pw.println("<tr>");
-
-                pw.println("<th>Comparison ID</th>");
-                pw.println("<th>User ID</th>");
-                pw.println("<th>Car 1</th>");
-                pw.println("<th>Car 2</th>");
-                pw.println("<th>Car 3</th>");
-                pw.println("<th>Car 4</th>");
-                pw.println("<th>Comparison Date</th>");
-
-                pw.println("</tr>");
-
-                while (rs.next()) {
-
-                    pw.println("<tr>");
-
-                    pw.println("<td>" +
-                            rs.getString("comparison_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("user_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("car_1_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("car_2_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("car_3_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("car_4_id") +
-                            "</td>");
-
-                    pw.println("<td>" +
-                            rs.getString("comparison_date") +
-                            "</td>");
-
-                    pw.println("</tr>");
-                }
-
-                pw.println("</table>");
-
-                pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
-
-                pw.println("</body></html>");
-            }
-
 
             /*
              

@@ -215,13 +215,6 @@
              case "REJECTED":  cancelBadgeClass = "badge-rejected";  break;
              default:          cancelBadgeClass = "badge-na";
            }
-           String payBadgeClass;
-           switch (b.paymentStatus == null ? "" : b.paymentStatus) {
-             case "PAID":    payBadgeClass = "badge-paid";   break;
-             case "PENDING": payBadgeClass = "badge-pending"; break;
-             case "N/A":     payBadgeClass = "badge-na";     break;
-             default:        payBadgeClass = "badge-na";
-           }
       %>
       <div class="booking-card <%= hasCancelRequest ? "has-cancel-request" : "" %>">
 
@@ -252,14 +245,6 @@
             <div class="bc-field-value"><%= b.registrationNo %></div>
           </div>
           <div class="bc-field">
-            <div class="bc-field-label">From</div>
-            <div class="bc-field-value"><%= b.startDate %></div>
-          </div>
-          <div class="bc-field">
-            <div class="bc-field-label">To</div>
-            <div class="bc-field-value"><%= b.endDate %></div>
-          </div>
-          <div class="bc-field">
             <div class="bc-field-label">Total Amount</div>
             <div class="bc-field-value">₹<%= String.format("%,.2f", b.totalAmount) %></div>
           </div>
@@ -270,10 +255,6 @@
           <div class="bc-field">
             <div class="bc-field-label">Drop</div>
             <div class="bc-field-value"><%= b.dropLocation == null ? "—" : b.dropLocation %></div>
-          </div>
-          <div class="bc-field">
-            <div class="bc-field-label">Payment</div>
-            <div class="bc-field-value"><span class="badge <%= payBadgeClass %>"><%= b.paymentStatus %></span></div>
           </div>
         </div>
 
