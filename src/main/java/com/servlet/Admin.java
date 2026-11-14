@@ -243,7 +243,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -251,34 +251,49 @@ public class Admin extends HttpServlet {
 
             /*
              
-             * COMPANY DETAILS
+             * BUSINESS PARTNER DETAILS
              
              */
 
             else if (action.equals("companies")) {
 
                 String q1 =
-                        "select company_id, company_name, " +
-                        "company_email, company_phone, " +
-                        "company_address, registration_number, " +
-                        "verification_status, created_at " +
-                        "from company_details";
+                        "select business_id, business_name, brand_name, " +
+                        "registration_no, gstin, pan, " +
+                        "business_email, business_phone, website, " +
+                        "address, city, state, pin_code, " +
+                        "contact_person_name, contact_person_designation, " +
+                        "contact_person_email, contact_person_phone, " +
+                        "login_email, account_status, created_at " +
+                        "from business_partners";
 
                 ResultSet rs = stmt.executeQuery(q1);
 
                 pw.println("<html><body>");
 
-                pw.println("<h2>Company Details</h2>");
+                pw.println("<h2>Business Partner Details</h2>");
 
                 pw.println("<table border='2' width='100%'>");
 
                 pw.println("<tr>");
-                pw.println("<th>Company ID</th>");
-                pw.println("<th>Company Name</th>");
+                pw.println("<th>Business ID</th>");
+                pw.println("<th>Business Name</th>");
+                pw.println("<th>Brand Name</th>");
+                pw.println("<th>Registration No.</th>");
+                pw.println("<th>GSTIN</th>");
+                pw.println("<th>PAN</th>");
                 pw.println("<th>Email</th>");
                 pw.println("<th>Phone</th>");
+                pw.println("<th>Website</th>");
                 pw.println("<th>Address</th>");
-                pw.println("<th>Registration No.</th>");
+                pw.println("<th>City</th>");
+                pw.println("<th>State</th>");
+                pw.println("<th>PIN Code</th>");
+                pw.println("<th>Contact Person</th>");
+                pw.println("<th>Designation</th>");
+                pw.println("<th>Contact Email</th>");
+                pw.println("<th>Contact Phone</th>");
+                pw.println("<th>Login Email</th>");
                 pw.println("<th>Status</th>");
                 pw.println("<th>Created At</th>");
                 pw.println("</tr>");
@@ -288,31 +303,79 @@ public class Admin extends HttpServlet {
                     pw.println("<tr>");
 
                     pw.println("<td>" +
-                            rs.getString("company_id") +
+                            rs.getString("business_id") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("company_name") +
+                            rs.getString("business_name") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("company_email") +
+                            rs.getString("brand_name") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("company_phone") +
+                            rs.getString("registration_no") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("company_address") +
+                            rs.getString("gstin") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("registration_number") +
+                            rs.getString("pan") +
                             "</td>");
 
                     pw.println("<td>" +
-                            rs.getString("verification_status") +
+                            rs.getString("business_email") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("business_phone") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("website") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("address") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("city") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("state") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("pin_code") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("contact_person_name") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("contact_person_designation") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("contact_person_email") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("contact_person_phone") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("login_email") +
+                            "</td>");
+
+                    pw.println("<td>" +
+                            rs.getString("account_status") +
                             "</td>");
 
                     pw.println("<td>" +
@@ -325,7 +388,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -394,7 +457,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -455,7 +518,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -514,7 +577,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -592,7 +655,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }
@@ -665,7 +728,7 @@ public class Admin extends HttpServlet {
                 pw.println("</table>");
 
                 pw.println("<br>");
-                pw.println("<a href='Admin'>Back to Dashboard</a>");
+                pw.println("<a href='admin.jsp'>Back to Dashboard</a>");
 
                 pw.println("</body></html>");
             }

@@ -594,11 +594,11 @@ body {
                 </div>
 
                 <h3>
-                    Company Details
+                    Business Partner Details
                 </h3>
 
                 <p>
-                    View automobile companies available in the system.
+                    View registered business partners and their information.
                 </p>
 
             </a>
